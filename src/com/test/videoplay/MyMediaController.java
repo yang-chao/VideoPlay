@@ -250,7 +250,12 @@ public class MyMediaController extends FrameLayout {
 				int[] location = new int[2];
 
 				mAnchor.getLocationOnScreen(location);
-				Rect anchorRect = new Rect(location[0], location[1], location[0] + mAnchor.getWidth(), location[1] + mAnchor.getHeight());
+				Rect anchorRect = new Rect(location[0], location[1], location[0] + mAnchor.getWidth(), location[1] + mAnchor.getHeight() - mRoot.getHeight());
+				
+//				System.out.println("xxx location left : " + location[0]);
+//				System.out.println("xxx location top : " + location[1]);
+//				System.out.println("xxx mAnchor width : " + mAnchor.getWidth());
+//				System.out.println("xxx mAnchor height : " + mAnchor.getHeight());
 
 				mWindow.setAnimationStyle(mAnimStyle);
 				mWindow.showAtLocation(mAnchor, Gravity.NO_GRAVITY, anchorRect.left, anchorRect.bottom);

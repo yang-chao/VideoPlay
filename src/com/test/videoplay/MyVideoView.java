@@ -289,8 +289,10 @@ public class MyVideoView extends SurfaceView implements MyMediaController.MediaP
     private void attachMediaController() {
         if (mMediaPlayer != null && mMediaController != null) {
             mMediaController.setMediaPlayer(this);
-            View anchorView = this.getParent() instanceof View ?
-                    (View)this.getParent() : this;
+            // TODO  ÐÞ¸Äanchorview
+//            View anchorView = this.getParent() instanceof View ?
+//                    (View)this.getParent() : this;
+            View anchorView = this;
             mMediaController.setAnchorView(anchorView);
             mMediaController.setEnabled(isInPlaybackState());
         }
@@ -326,6 +328,11 @@ public class MyVideoView extends SurfaceView implements MyMediaController.MediaP
 //            } else {
 //                mCanPause = mCanSeekBack = mCanSeekForward = true;
 //            }
+            
+            // TODO  simply make mCanPause|mCanSeekBack|mCanSeekForward = true
+            mCanPause = true;
+            mCanSeekBack = true;
+            mCanSeekForward = true;
 
             if (mOnPreparedListener != null) {
                 mOnPreparedListener.onPrepared(mMediaPlayer);
