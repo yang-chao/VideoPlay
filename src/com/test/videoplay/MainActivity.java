@@ -1,7 +1,10 @@
 package com.test.videoplay;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,7 +15,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout.LayoutParams;
 
 public class MainActivity extends Activity {
 
@@ -56,7 +58,11 @@ public class MainActivity extends Activity {
 				
 			}
 		});
-		playMedia();
+		try {
+			playMedia();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		findViewById(R.id.sw).setOnClickListener(new OnClickListener() {
 			
@@ -117,8 +123,18 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	private void playMedia() {
-		mVideoView.setVideoURI(Uri.parse("http://110.18.245.9/37ada8e14cbfa12-1392289226-3721189064/data7/flv.bn.netease.com/videolib3/1402/13/EyKrA3653/SD/EyKrA3653-mobile.mp4"));
+	private void playMedia() throws IOException {
+//		mVideoView.setVideoURI(Uri.parse("http://flv.bn.netease.com/videolib3/1208/13/WZHyF2463/WZHyF2463-mobile.mp4"));
+//		mVideoView.setVideoURI(Uri.parse("http://flv.bn.netease.com/videolib3/1208/12/hTFnk8972/hTFnk8972-mobile.mp4"));
+		
+//		mVideoView.setVideoURI(Uri.parse("file:///assets/WZHyF2463-mobile.mp4"));
+//		mVideoView.setVideoURI(Uri.parse("file:///assets/hTFnk8972-mobile.mp4"));
+//		mVideoView.setVideoPath("file:///assets/hTFnk8972-mobile.mp4");
+		
+		Uri uri = Uri.parse("android.resource://" + getPackageName() + "/"+ R.raw.c);
+		mVideoView.setVideoURI(uri);
+		
+//		mVideoView.setVideoURI(Uri.parse("http://110.18.245.9/37ada8e14cbfa12-1392289226-3721189064/data7/flv.bn.netease.com/videolib3/1402/13/EyKrA3653/SD/EyKrA3653-mobile.mp4"));
 		mVideoView.start();
 	}
 	
