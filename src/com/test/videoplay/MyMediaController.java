@@ -1,6 +1,8 @@
 package com.test.videoplay;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.os.Handler;
@@ -11,6 +13,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
@@ -68,8 +71,18 @@ public class MyMediaController extends FrameLayout {
 	private static final int sDefaultTimeout = 3000;
 	private static final int FADE_OUT = 1;
 	private static final int SHOW_PROGRESS = 2;
+	private boolean mUseFastForward;
+	private boolean mFullScreen = false;
 	private boolean mFromXml = false;
+	private boolean mListenersSet;
+	private View.OnClickListener mNextListener, mPrevListener;
 	private ImageButton mPauseButton;
+	private ImageButton mFfwdButton;
+    private ImageButton mRewButton;
+    private ImageButton mNextButton;
+    private ImageButton mPrevButton;
+    private ImageButton mExpandButton;
+    private ImageButton mShrinkButton;
 	private ImageButton mAskButton;
 
 	private AudioManager mAM;
@@ -77,14 +90,25 @@ public class MyMediaController extends FrameLayout {
 	public MyMediaController(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		mRoot = this;
+		mUseFastForward = true;
 		mFromXml = true;
 		initController(context);
 	}
 
 	public MyMediaController(Context context) {
 		super(context);
-		if (!mFromXml && initController(context))
+		if (!mFromXml && initController(context)) {
 			initFloatingWindow();
+		}
+		mUseFastForward = true;
+	}
+	
+	public MyMediaController(Context context, boolean useFastForward) {
+		super(context);
+		if (!mFromXml && initController(context)) {
+			initFloatingWindow();
+		}
+		mUseFastForward = useFastForward;
 	}
 
 	private boolean initController(Context context) {
@@ -142,6 +166,45 @@ public class MyMediaController extends FrameLayout {
 			mPauseButton.setOnClickListener(mPauseListener);
 		}
 
+		mFfwdButton = (ImageButton) v.findViewById(R.id.ffwd);
+        if (mFfwdButton != null) {
+            mFfwdButton.setOnClickListener(mFfwdListener);
+            if (!mFromXml) {
+                mFfwdButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
+            }
+        }
+
+        mRewButton = (ImageButton) v.findViewById(R.id.rew);
+        if (mRewButton != null) {
+            mRewButton.setOnClickListener(mRewListener);
+            if (!mFromXml) {
+                mRewButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
+            }
+        }
+        
+        mExpandButton = (ImageButton) v.findViewById(R.id.expand);
+        if (mExpandButton != null) {
+        	mExpandButton.setOnClickListener(mExpandListener);
+        	mExpandButton.setVisibility(mFullScreen ? View.GONE : View.VISIBLE);
+        }
+        
+        mShrinkButton = (ImageButton) v.findViewById(R.id.shrink);
+        if (mShrinkButton != null) {
+        	mShrinkButton.setOnClickListener(mShrinkListener);
+        	mShrinkButton.setVisibility(mFullScreen ? View.VISIBLE : View.GONE);
+        }
+        
+        // By default these are hidden. They will be enabled when setPrevNextListeners() is called 
+        mNextButton = (ImageButton) v.findViewById(R.id.next);
+        if (mNextButton != null && !mFromXml && !mListenersSet) {
+            mNextButton.setVisibility(View.GONE);
+        }
+        
+        mPrevButton = (ImageButton) v.findViewById(R.id.prev);
+        if (mPrevButton != null && !mFromXml && !mListenersSet) {
+            mPrevButton.setVisibility(View.GONE);
+        }
+        
 //		mAskButton = (ImageButton) v.findViewById(R.id.mediacontroller_ask);
 //		if (mAskButton != null) {
 //			mAskButton.requestFocus();
@@ -164,6 +227,35 @@ public class MyMediaController extends FrameLayout {
 //		if (mFileName != null)
 //			mFileName.setText(mTitle);
 	}
+	
+	public void setPrevNextListeners(View.OnClickListener next, View.OnClickListener prev) {
+        mNextListener = next;
+        mPrevListener = prev;
+        mListenersSet = true;
+
+        if (mRoot != null) {
+            installPrevNextListeners();
+            
+            if (mNextButton != null && !mFromXml) {
+                mNextButton.setVisibility(View.VISIBLE);
+            }
+            if (mPrevButton != null && !mFromXml) {
+                mPrevButton.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+	
+	private void installPrevNextListeners() {
+        if (mNextButton != null) {
+            mNextButton.setOnClickListener(mNextListener);
+            mNextButton.setEnabled(mNextListener != null);
+        }
+
+        if (mPrevButton != null) {
+            mPrevButton.setOnClickListener(mPrevListener);
+            mPrevButton.setEnabled(mPrevListener != null);
+        }
+    }
 
 	public void setMediaPlayer(MediaPlayerControl player) {
 		mPlayer = player;
@@ -248,15 +340,15 @@ public class MyMediaController extends FrameLayout {
 				setVisibility(View.VISIBLE);
 			} else {
 				int[] location = new int[2];
+				
+				// we need to know the size of the controller so we can properly position it
+		        // within its space
+				mRoot.measure(MeasureSpec.makeMeasureSpec(mAnchor.getWidth(), MeasureSpec.AT_MOST),
+		                MeasureSpec.makeMeasureSpec(mAnchor.getHeight(), MeasureSpec.AT_MOST));
 
 				mAnchor.getLocationOnScreen(location);
-				Rect anchorRect = new Rect(location[0], location[1], location[0] + mAnchor.getWidth(), location[1] + mAnchor.getHeight() - mRoot.getHeight());
+				Rect anchorRect = new Rect(location[0], location[1], location[0] + mAnchor.getWidth(), location[1] + mAnchor.getHeight() - mRoot.getMeasuredHeight());
 				
-//				System.out.println("xxx location left : " + location[0]);
-//				System.out.println("xxx location top : " + location[1]);
-//				System.out.println("xxx mAnchor width : " + mAnchor.getWidth());
-//				System.out.println("xxx mAnchor height : " + mAnchor.getHeight());
-
 				mWindow.setAnimationStyle(mAnimStyle);
 				mWindow.showAtLocation(mAnchor, Gravity.NO_GRAVITY, anchorRect.left, anchorRect.bottom);
 			}
@@ -404,6 +496,64 @@ public class MyMediaController extends FrameLayout {
 			show(sDefaultTimeout);
 		}
 	};
+	
+	private View.OnClickListener mRewListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            int pos = mPlayer.getCurrentPosition();
+            pos -= 15000; // milliseconds
+            mPlayer.seekTo(pos);
+            setProgress();
+
+            show(sDefaultTimeout);
+        }
+    };
+
+    private View.OnClickListener mFfwdListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            int pos = mPlayer.getCurrentPosition();
+            pos += 15000; // milliseconds
+            mPlayer.seekTo(pos);
+            setProgress();
+
+            show(sDefaultTimeout);
+        }
+    };
+    
+    private View.OnClickListener mExpandListener = new View.OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			if (mFullScreen) {
+				return;
+			}
+			
+			Activity activity = ((Activity) mContext);
+			if (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+				hide();
+				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+				mFullScreen = true;
+				updateExpandShrink();
+			}
+		}
+	};
+	
+	private View.OnClickListener mShrinkListener = new View.OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			if (!mFullScreen) {
+				return;
+			}
+			
+			Activity activity = ((Activity) mContext);
+			if (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+				hide();
+				activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+				mFullScreen = false;
+				updateExpandShrink();
+			}
+		}
+	};
 
 	private View.OnClickListener mAsk = new View.OnClickListener() {
 		public void onClick(View v) {
@@ -411,6 +561,20 @@ public class MyMediaController extends FrameLayout {
 			show(sDefaultTimeout);
 		}
 	};
+	
+	private void updateExpandShrink() {
+		if (mRoot == null || mExpandButton == null || mShrinkButton == null) {
+			return;
+		}
+		
+		if (mFullScreen) {
+			mExpandButton.setVisibility(View.GONE);
+			mShrinkButton.setVisibility(View.VISIBLE);
+		} else {
+			mExpandButton.setVisibility(View.VISIBLE);
+			mShrinkButton.setVisibility(View.GONE);
+		}
+	}
 
 	private void updatePausePlay() {
 		if (mRoot == null || mPauseButton == null)

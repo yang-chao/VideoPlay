@@ -4,13 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <SurfaceView
-        android:id="@+id/surfaceview"
-        android:layout_width="fill_parent"
-        android:layout_alignParentTop="true"
-        android:visibility="gone"
-        android:layout_height="200dp" />
-
     <com.test.videoplay.MyVideoView
         android:id="@+id/videoview"
         android:layout_centerHorizontal="true"

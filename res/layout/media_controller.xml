@@ -70,6 +70,9 @@
             android:layout_height="wrap_content"
             android:paddingStart="4dip"
             android:textColor="@android:color/black" />
+        
+        <ImageButton android:id="@+id/expand" style="@android:style/MediaButton.Next" />
+        <ImageButton android:id="@+id/shrink" style="@android:style/MediaButton.Previous" />
     </LinearLayout>
 
 </LinearLayout>

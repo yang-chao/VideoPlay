@@ -24,19 +24,20 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f09000c;
-        public static final int ffwd=0x7f090007;
-        public static final int mediacontroller_progress=0x7f09000a;
-        public static final int next=0x7f090008;
-        public static final int pause=0x7f090006;
-        public static final int prev=0x7f090004;
-        public static final int rew=0x7f090005;
+        public static final int action_settings=0x7f09000d;
+        public static final int expand=0x7f09000b;
+        public static final int ffwd=0x7f090006;
+        public static final int mediacontroller_progress=0x7f090009;
+        public static final int next=0x7f090007;
+        public static final int pause=0x7f090005;
+        public static final int prev=0x7f090003;
+        public static final int rew=0x7f090004;
         public static final int root=0x7f090000;
-        public static final int surfaceview=0x7f090001;
-        public static final int sw=0x7f090003;
-        public static final int time=0x7f09000b;
-        public static final int time_current=0x7f090009;
-        public static final int videoview=0x7f090002;
+        public static final int shrink=0x7f09000c;
+        public static final int sw=0x7f090002;
+        public static final int time=0x7f09000a;
+        public static final int time_current=0x7f090008;
+        public static final int videoview=0x7f090001;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
